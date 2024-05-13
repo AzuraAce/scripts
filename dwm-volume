@@ -1,0 +1,34 @@
+#!/bin/bash
+
+sink_name=$(pactl get-default-sink)
+
+incr="+5%"
+decr="-5%"
+
+msgTag="myvolume"
+
+case "$1" in
+	"up")
+		pactl set-sink-volume $sink_name $incr
+        volume="$(pactl get-sink-volume $sink_name | tail -2 | awk '{print $5}' | sed 's/[^0-9]*//g')"
+        # Show the volume notification
+        dunstify -a "changeVolume" -u low -i audio-volume-high -h string:x-dunst-stack-tag:$msgTag \
+        -h int:value:"$volume" "Volume: ${volume}%"
+	;;
+	"down")
+		pactl set-sink-volume $sink_name $decr
+        volume="$(pactl get-sink-volume $sink_name | tail -2 | awk '{print $5}' | sed 's/[^0-9]*//g')"
+        # Show the volume notification
+        dunstify -a "changeVolume" -u low -i audio-volume-high -h string:x-dunst-stack-tag:$msgTag \
+        -h int:value:"$volume" "Volume: ${volume}%"
+	;;
+	"toggle")
+		pactl set-sink-mute $sink_name "toggle"
+        mute="$(pactl get-sink-mute 1 | awk '{print $2}')"
+        # Show the sound muted notification
+        dunstify -a "changeVolume" -u low -i audio-volume-muted -h string:x-dunst-stack-tag:$msgTag "Mute: $mute" 
+	;;
+	"umute")
+		pactl set-sink-mute $sink_name "0"
+	;;
+esac

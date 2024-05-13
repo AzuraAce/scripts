@@ -1,0 +1,13 @@
+# launch spotify-tui with spotifyd (if not already running)
+spotify() {
+    if ! pgrep -c "spotifyd" > /dev/null
+    then
+      echo "starting spotifyd..."
+      pass show spotify >/dev/null
+      spotifyd
+    fi
+
+    spt
+}
+
+spotify

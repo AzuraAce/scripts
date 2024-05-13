@@ -1,0 +1,39 @@
+#!/bin/zsh
+#
+# Set brightness with light, but never go below 1 (as that's "off").
+#
+
+# Increment to use.
+incr=10
+
+msgTag="myBrightness"
+
+cur=$(light)
+case "$1" in
+	"up")
+		if [[ $cur -eq 0 ]]; then
+			light -S 1
+		else
+			light -A $incr
+		fi
+	;;
+	"down")
+		if [[ $cur -le 5 ]]; then
+			light -S 1
+		else
+			light -U $incr
+		fi
+	;;
+	"get")
+		x=$(light -G)
+		echo ${x%%.*}
+	;;
+	*)
+		echo "Unsupported: \"$1\""
+		exit 1
+esac
+
+brightness="$(light)"
+
+dunstify -a "changeBrightness" -u low -i brightness -h string:x-dunst-stack-tag:$msgTag \
+    -h int:value:"$brightness" "Brightness: ${brightness}%"
