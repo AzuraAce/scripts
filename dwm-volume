@@ -31,4 +31,10 @@ case "$1" in
 	"umute")
 		pactl set-sink-mute $sink_name "0"
 	;;
+	"mic toggle")
+		pactl set-sink-mute $sink_name "toggle"
+        mute="$(pactl get-sink-mute 1 | awk '{print $2}')"
+        # Show the sound muted notification
+        dunstify -a "changeVolume" -u low -i audio-volume-muted -h string:x-dunst-stack-tag:$msgTag "Mute: $mute" 
+	;;
 esac
