@@ -3,6 +3,9 @@
 kitty @ set-enabled-layouts splits
 kitty @ set-tab-title music
 kitty @ set-window-title cover
-kitty @ launch --location hsplit --title ncmpcpp ncmpcpp
-# kitty @ resize-window --increment 93
+kitty @ launch --location first --title ncmpcpp ncmpcpp
+# kitty @ set-enabled-layouts splits
+# kitty @ set-tab-title music
+# kitty @ set-window-title cover
+# kitty @ launch --location hsplit --title ncmpcpp ncmpcpp
 source "$HOME/scripts/music/album_cover.sh"
