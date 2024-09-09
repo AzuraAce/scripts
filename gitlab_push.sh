@@ -31,13 +31,13 @@ while [ $# -gt 0 ]; do
             if [[ ! -d "$GIT_DIR/$COPY_DIR" ]]; then
                 mkdir -p "$GIT_DIR/$COPY_DIR"
             fi
+            if [[ ! -z $COPY_DIR ]]; then
+                COPY_DIR+="/"
+            fi
             shift # past argument
             shift # past value
             ;;
          *)
-            if [[ ! -z $COPY_DIR ]]; then
-                COPY_DIR+="/"
-            fi
             FILE_NAMES+=" $COPY_DIR$(basename $1)"
             cp $(basename $1) "$GIT_DIR/$COPY_DIR"
             shift # past argument

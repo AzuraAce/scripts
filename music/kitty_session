@@ -1,0 +1,5 @@
+layout splits
+cd /home/oliver/scripts/music
+launch ncmpcpp
+launch --location=vsplit --title cover
+#./album_cover.sh

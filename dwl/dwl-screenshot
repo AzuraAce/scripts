@@ -1,0 +1,1 @@
+grim -g "$(slurp)" -o $(xdg-user-dir)/screenshots/grim_$(date +"%Y%m%d%H%M%S").png

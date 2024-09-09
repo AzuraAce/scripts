@@ -1,0 +1,3 @@
+#!/bin/sh
+
+exec /usr/bin/wmenu-run -i -f "monospace 12" -l 10 -S 5441A2 -n daa7ff
