@@ -1,7 +1,8 @@
 #! /usr/bin/env bash
 
+kitty @ set-enabled-layouts splits
 kitty @ set-tab-title music
 kitty @ set-window-title cover
-kitty @ new-window --title ncmpcpp ncmpcpp
+kitty @ launch --location hsplit --title ncmpcpp ncmpcpp
 # kitty @ resize-window --increment 93
 source "$HOME/scripts/music/album_cover.sh"
