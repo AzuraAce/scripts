@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+RED='\e[31m'
+GREEN='\e[32m'
+RESET='\e[0m'
+
+# Define an array of repositories and their corresponding .nix files
+declare -A repo_urls=(
+    ["https://github.com/AzuraAce/dwmblocks-async"]="$HOME/nix-config/pkgs/dwmblocks.nix"
+    ["https://github.com/AzuraAce/dwm"]="$HOME/nix-config/modules/windowManager.nix"
+    ["https://github.com/AzuraAce/st"]="$HOME/nix-config/modules/systemPkgs.nix"
+)
+
+for repo_url in "${!repo_urls[@]}"; do
+    nix_file="${repo_urls[$repo_url]}"
+    
+    echo -e "${GREEN}Fetching${RESET} new SHA256 for $repo_url ..."
+    
+    new_sha=$(nix-prefetch-git --quiet "$repo_url" | jq -r .hash) 
+
+    if [[ -z "$new_sha" ]]; then
+        echo -e "${RED}Failed${RESET} to fetch SHA256 for $repo_url"
+        continue
+    fi
+
+    echo -e "${GREEN}Updating${RESET} $nix_file\n\t with sha256: $new_sha"
+
+    # Replace the old sha256 in the corresponding nix file
+    sed -i "s|sha256 = \".*\"|sha256 = \"$new_sha\"|" "$nix_file"
+
+    echo -e "${GREEN}Updated${RESET} $nix_file \n"
+done
+
+echo -e "${GREEN}All repositories processed!${RESET}"

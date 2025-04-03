@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 sink_name=$(pactl get-default-sink)
 source_name=$(pactl get-default-source)

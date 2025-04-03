@@ -1,39 +1,49 @@
-#!/bin/zsh
+#!/usr/bin/env bash
+
 #
 # Set brightness with light, but never go below 1 (as that's "off").
 #
+
+round() {
+  printf "%.${2}f" "${1}"
+}
 
 # Increment to use.
 incr=10
 
 msgTag="myBrightness"
 
-cur=$(light)
+cur=$(round $(light) 0)
+
+# kill -(34 + signal number in dwmblocks-async config.h)
+refreshDWMBlocks="kill -36 $(pidof dwmblocks) 2>/dev/null"
+
 case "$1" in
 	"up")
-		if [[ $cur -eq 0 ]]; then
-			light -S 1
+		if [[ $(($cur + $incr)) -ge 100 ]]; then
+			light -S 100
 		else
-			light -A $incr
+      light -S $(($cur + $incr))
 		fi
+    eval "$refreshDWMBlocks"
 	;;
 	"down")
-		if [[ $cur -le 5 ]]; then
-			light -S 1
+		if [[ $(($cur - $incr)) -le $incr ]]; then
+			light -S $incr
 		else
-			light -U $incr
+      light -S $(($cur - $incr))
 		fi
+    eval "$refreshDWMBlocks"
 	;;
 	"get")
-		x=$(light -G)
-		echo ${x%%.*}
+    echo "L $cur%"
 	;;
 	*)
 		echo "Unsupported: \"$1\""
 		exit 1
 esac
 
-brightness="$(light)"
+brightness=$(round $(light) 0)
 
 dunstify -a "changeBrightness" -u low -i brightness -h string:x-dunst-stack-tag:$msgTag \
     -h int:value:"$brightness" "Brightness: ${brightness}%"

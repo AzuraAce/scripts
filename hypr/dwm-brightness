@@ -1,0 +1,38 @@
+#
+# Set brightness with light, but never go below 1 (as that's "off").
+#
+
+# Increment to use.
+incr=10
+
+msgTag="myBrightness"
+
+cur=$(brightnessctl g)
+case "$1" in
+	"up")
+		if [[ $cur -eq 0 ]]; then
+			brightnessctl s 100
+		else
+			brightnessctl s +10%
+		fi
+	;;
+	"down")
+		if [[ $cur -le 5 ]]; then
+			brightnessctl s 5%
+		else
+			brightnessctl s 10%-
+		fi
+	;;
+	"get")
+		x=$(light -G)
+		echo ${x%%.*}
+	;;
+	*)
+		echo "Unsupported: \"$1\""
+		exit 1
+esac
+
+brightness="$(brightnessctl -m | awk -F, '{print substr($4, 0, length($4)-1)}')"
+
+dunstify -a "changeBrightness" -u low -i brightness -h string:x-dunst-stack-tag:$msgTag \
+    -h int:value:"$brightness" "Brightness: ${brightness}%"
