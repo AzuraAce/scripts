@@ -1,59 +1,61 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 sink_name=$(pactl get-default-sink)
 source_name=$(pactl get-default-source)
 
-incr="+5%"
-decr="-5%"
+incr="+10%"
+decr="-10%"
+mute="$(pactl get-sink-mute $sink_name | awk '{print $2}')"
+micMute="$(pactl get-source-mute $source_name | awk '{print $2}')"
+volume="$(pactl get-sink-volume $sink_name | grep -o '[0-9]\+%' | head -1 | tr -d '%')"
 
 msgTag="myvolume"
 
 case "$1" in
 "up")
 	pactl set-sink-volume $sink_name $incr
-	volume="$(pactl get-sink-volume $sink_name | tail -2 | awk '{print $5}' | sed 's/[^0-9]*//g')"
-	# Show the volume notification
-	dunstify -a "changeVolume" -u low -i audio-volume-high -h string:x-dunst-stack-tag:$msgTag \
-		-h int:value:"$volume" "Volume: ${volume}%"
+  volume="$(pactl get-sink-volume $sink_name | grep -o '[0-9]\+%' | head -1 | tr -d '%')"
 	;;
+
 "down")
 	pactl set-sink-volume $sink_name $decr
-	volume="$(pactl get-sink-volume $sink_name | tail -2 | awk '{print $5}' | sed 's/[^0-9]*//g')"
-	# Show the volume notification
-	dunstify -a "changeVolume" -u low -i audio-volume-high -h string:x-dunst-stack-tag:$msgTag \
-		-h int:value:"$volume" "Volume: ${volume}%"
+	volume="$(pactl get-sink-volume $sink_name | grep -o '[0-9]\+%' | head -1 | tr -d '%')"
 	;;
+
 "toggle")
-	pactl set-sink-mute $sink_name "toggle"
+	pactl set-sink-mute $sink_name toggle
 	mute="$(pactl get-sink-mute $sink_name | awk '{print $2}')"
 	# toggle led on mute key
 	case $mute in
 	"no")
-		echo "0" >/sys/devices/platform/thinkpad_acpi/leds/platform\:\:mute/brightness
+		echo 0 | sudo tee /sys/devices/platform/thinkpad_acpi/leds/platform\:\:mute/brightness
 		;;
 	"yes")
-		echo "1" >/sys/devices/platform/thinkpad_acpi/leds/platform\:\:mute/brightness
+		echo 1 | sudo tee /sys/devices/platform/thinkpad_acpi/leds/platform\:\:mute/brightness
 		;;
 	esac
-	# Show the sound muted notification
-	dunstify -a "changeVolume" -u low -i audio-volume-muted -h string:x-dunst-stack-tag:$msgTag "Mute: $mute"
 	;;
+
 "umute")
 	pactl set-sink-mute $sink_name "0"
 	;;
-"mic toggle")
-	pactl set-source-mute $source_name "toggle"
-	mute="$(pactl get-source-mute 1 | awk '{print $2}')"
+
+"mic-toggle")
+  pactl set-source-mute $source_name toggle
+	micMute="$(pactl get-source-mute $source_name | awk '{print $2}')"
 	# toggle led on mic mute key
-	case $mute in
+	case $micMute in
 	"no")
-		echo "0" >/sys/devices/platform/thinkpad_acpi/leds/platform\:\:micmute/brightness
+		echo 0 | sudo tee /sys/devices/platform/thinkpad_acpi/leds/platform\:\:micmute/brightness
 		;;
 	"yes")
-		echo "1" >/sys/devices/platform/thinkpad_acpi/leds/platform\:\:micmute/brightness
+		echo 1 | sudo tee /sys/devices/platform/thinkpad_acpi/leds/platform\:\:micmute/brightness
 		;;
 	esac
-	# Show the sound muted notification
-	dunstify -a "changeVolume" -u low -i audio-volume-muted -h string:x-dunst-stack-tag:$msgTag "Mic Mute: $mute"
 	;;
+
 esac
+
+# Show the volume notification
+dunstify -a "changeVolume" -u low -i audio-volume-high -h string:x-dunst-stack-tag:$msgTag \
+  -h int:value:$volume "Volume: ${volume}% | Mute: $mute | Mic Mute: $micMute"

@@ -37,6 +37,7 @@ case "$1" in
 	;;
 	"get")
     echo "L $cur%"
+    exit 0
 	;;
 	*)
 		echo "Unsupported: \"$1\""
