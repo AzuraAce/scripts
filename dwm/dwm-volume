@@ -58,6 +58,7 @@ case "$1" in
 "get")
 	volume="$(pactl get-sink-volume $sink_name | grep -o '[0-9]\+%' | head -1 | tr -d '%')"
   echo "S ${volume}%"
+  exit 1
 	;;
 
 esac
