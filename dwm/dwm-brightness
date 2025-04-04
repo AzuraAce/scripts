@@ -4,6 +4,10 @@
 # Set brightness with light, but never go below 1 (as that's "off").
 #
 
+case "$BLOCK_BUTTON" in
+    4) st -e "$EDITOR" "$0" ;;
+esac
+
 round() {
   printf "%.${2}f" "${1}"
 }

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+toggle_wifi ()
+{
+  status="$(nmcli r wifi)"
+  if [ "$status" == "enabled" ]; then
+    nmcli radio wifi off
+  else
+    nmcli radio wifi on
+    sleep 5
+  fi
+}
+
+case "$BLOCK_BUTTON" in
+    1) toggle_wifi ;;
+    4) st -e "$EDITOR" "$0" ;;
+esac
+
+toggle_wifi
+msgTag="WiFi"
+essid=$(iwgetid -r)
+
+if [ -z "${essid}" ]; then
+  essid="Disconnected"
+fi
+
+echo "${essid}"
