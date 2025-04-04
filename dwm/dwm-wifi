@@ -16,8 +16,6 @@ case "$BLOCK_BUTTON" in
     4) st -e "$EDITOR" "$0" ;;
 esac
 
-toggle_wifi
-msgTag="WiFi"
 essid=$(iwgetid -r)
 
 if [ -z "${essid}" ]; then
