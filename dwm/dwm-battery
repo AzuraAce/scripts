@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+case "$BLOCK_BUTTON" in
+    4) st -e "$EDITOR" "$0" ;;
+esac
+
+battery_status=$(acpi -b | awk -F', ' '{print $1}' | sed 's/Battery [0-9]*: //')
+battery_level=$(acpi -b | awk -F', ' '{print $2}' | sed 's/Battery [0-9]*: //' | sed 's/%//')
+
+if [[ "$battery_level" -le 20 && "$battery_status" != "Charging" ]]; then
+  dunstify -u critical -t 5000 "Battery Low" "Battery level is at ${battery_level}%"
+fi
+
+echo "$battery_status $battery_level%"
