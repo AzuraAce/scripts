@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+case "$BLOCK_BUTTON" in
+    4) st -e "$EDITOR" "$0" ;;
+esac
+
+sink_name=$(pactl get-default-sink)
+source_name=$(pactl get-default-source)
+
+incr="+10%"
+decr="-10%"
+mute="$(pactl get-sink-mute $sink_name | awk '{print $2}')"
+micMute="$(pactl get-source-mute $source_name | awk '{print $2}')"
+volume="$(pactl get-sink-volume $sink_name | grep -o '[0-9]\+%' | head -1 | tr -d '%')"
+
+msgTag="myvolume"
+
+# kill -(34 + signal number in dwmblocks-async config.h)
+refreshDWMBlocks="kill -35 $(pidof dwmblocks) 2>/dev/null"
+
+case "$1" in
+"up")
+	pactl set-sink-volume $sink_name $incr
+  volume="$(pactl get-sink-volume $sink_name | grep -o '[0-9]\+%' | head -1 | tr -d '%')"
+  eval $refreshDWMBlocks
+	;;
+
+"down")
+	pactl set-sink-volume $sink_name $decr
+	volume="$(pactl get-sink-volume $sink_name | grep -o '[0-9]\+%' | head -1 | tr -d '%')"
+  eval $refreshDWMBlocks
+	;;
+
+"toggle")
+	pactl set-sink-mute $sink_name toggle
+	mute="$(pactl get-sink-mute $sink_name | awk '{print $2}')"
+	# toggle led on mute key
+	case $mute in
+	"no")
+		echo 0 | sudo tee /sys/devices/platform/thinkpad_acpi/leds/platform\:\:mute/brightness
+		;;
+	"yes")
+		echo 1 | sudo tee /sys/devices/platform/thinkpad_acpi/leds/platform\:\:mute/brightness
+		;;
+	esac
+	;;
+
+"mic-toggle")
+  pactl set-source-mute $source_name toggle
+	micMute="$(pactl get-source-mute $source_name | awk '{print $2}')"
+	# toggle led on mic mute key
+	case $micMute in
+	"no")
+		echo 0 | sudo tee /sys/devices/platform/thinkpad_acpi/leds/platform\:\:micmute/brightness
+		;;
+	"yes")
+		echo 1 | sudo tee /sys/devices/platform/thinkpad_acpi/leds/platform\:\:micmute/brightness
+		;;
+	esac
+	;;
+
+"get")
+	volume="$(pactl get-sink-volume $sink_name | grep -o '[0-9]\+%' | head -1 | tr -d '%')"
+  echo "S ${volume}%"
+  exit 0
+	;;
+
+esac
+
+# Show the volume notification
+dunstify -a "changeVolume" -u low -i audio-volume-high -h string:x-dunst-stack-tag:$msgTag \
+  -h int:value:$volume "Volume: ${volume}% | Mute: $mute | Mic Mute: $micMute"

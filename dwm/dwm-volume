@@ -4,69 +4,47 @@ case "$BLOCK_BUTTON" in
     4) st -e "$EDITOR" "$0" ;;
 esac
 
-sink_name=$(pactl get-default-sink)
-source_name=$(pactl get-default-source)
-
-incr="+10%"
-decr="-10%"
-mute="$(pactl get-sink-mute $sink_name | awk '{print $2}')"
-micMute="$(pactl get-source-mute $source_name | awk '{print $2}')"
-volume="$(pactl get-sink-volume $sink_name | grep -o '[0-9]\+%' | head -1 | tr -d '%')"
-
-msgTag="myvolume"
+incr=10
+volume=$(awk -F"[][]" '/Left:/ { print $2 }' <(amixer sget Master) | sed 's/%//')
+mute=$(amixer get Master | tail -n 1 | grep -o -P '\[on\]|\[off\]')
+muteMic=$(amixer get Capture | tail -n 1 | grep -o -P '\[on\]|\[off\]')
 
 # kill -(34 + signal number in dwmblocks-async config.h)
 refreshDWMBlocks="kill -35 $(pidof dwmblocks) 2>/dev/null"
 
 case "$1" in
 "up")
-	pactl set-sink-volume $sink_name $incr
-  volume="$(pactl get-sink-volume $sink_name | grep -o '[0-9]\+%' | head -1 | tr -d '%')"
+  amixer --quiet set Master "$(($volume + $incr))%"
   eval $refreshDWMBlocks
 	;;
 
 "down")
-	pactl set-sink-volume $sink_name $decr
-	volume="$(pactl get-sink-volume $sink_name | grep -o '[0-9]\+%' | head -1 | tr -d '%')"
+  amixer --quiet set Master "$(($volume - $incr))%"
   eval $refreshDWMBlocks
 	;;
 
 "toggle")
-	pactl set-sink-mute $sink_name toggle
-	mute="$(pactl get-sink-mute $sink_name | awk '{print $2}')"
-	# toggle led on mute key
-	case $mute in
-	"no")
-		echo 0 | sudo tee /sys/devices/platform/thinkpad_acpi/leds/platform\:\:mute/brightness
-		;;
-	"yes")
-		echo 1 | sudo tee /sys/devices/platform/thinkpad_acpi/leds/platform\:\:mute/brightness
-		;;
-	esac
-	;;
+  amixer set Master toggle
+  eval $refreshDWMBlocks
+  ;;
 
 "mic-toggle")
-  pactl set-source-mute $source_name toggle
-	micMute="$(pactl get-source-mute $source_name | awk '{print $2}')"
-	# toggle led on mic mute key
-	case $micMute in
-	"no")
-		echo 0 | sudo tee /sys/devices/platform/thinkpad_acpi/leds/platform\:\:micmute/brightness
-		;;
-	"yes")
-		echo 1 | sudo tee /sys/devices/platform/thinkpad_acpi/leds/platform\:\:micmute/brightness
-		;;
-	esac
-	;;
+  amixer -c 1 set Capture toggle
+  eval $refreshDWMBlocks
+  ;;
 
 "get")
-	volume="$(pactl get-sink-volume $sink_name | grep -o '[0-9]\+%' | head -1 | tr -d '%')"
-  echo "S ${volume}%"
+  volume = $(eval $volumeCMD)
+  echo "S ${mute} ${volume}%"
   exit 0
 	;;
-
 esac
 
+volume=$(awk -F"[][]" '/Left:/ { print $2 }' <(amixer sget Master) | sed 's/%//')
+mute=$(amixer get Master | tail -n 1 | grep -o -P '\[on\]|\[off\]')
+muteMic=$(amixer -c 1 get Capture | tail -n 1 | grep -o -P '\[on\]|\[off\]')
+
+msgTag="myvolume"
 # Show the volume notification
 dunstify -a "changeVolume" -u low -i audio-volume-high -h string:x-dunst-stack-tag:$msgTag \
-  -h int:value:$volume "Volume: ${volume}% | Mute: $mute | Mic Mute: $micMute"
+  -h int:value:$volume "Volume: ${volume}% | Mute: $mute | Mic Mute: $muteMic"
