@@ -16,7 +16,7 @@ case "$BLOCK_BUTTON" in
     4) st -e "$EDITOR" "$0" ;;
 esac
 
-essid=$(iwgetid -r)
+essid=$(nmcli -g active,ssid dev wifi | grep '^yes' | cut -d: -f2)
 
 if [ -z "${essid}" ]; then
   essid="Disconnected"
