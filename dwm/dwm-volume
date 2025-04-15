@@ -37,14 +37,14 @@ case "$1" in
   volume = $(eval $volumeCMD)
   echo "S ${mute} ${volume}%"
   exit 0
-	;;
+  ;;
 esac
 
 volume=$(awk -F"[][]" '/Left:/ { print $2 }' <(amixer sget Master) | sed 's/%//')
 mute=$(amixer get Master | tail -n 1 | grep -o -P '\[on\]|\[off\]')
-muteMic=$(amixer -c 1 get Capture | tail -n 1 | grep -o -P '\[on\]|\[off\]')
+muteMic=$(amixer get Capture | tail -n 1 | grep -o -P '\[on\]|\[off\]')
 
 msgTag="myvolume"
 # Show the volume notification
 dunstify -a "changeVolume" -u low -i audio-volume-high -h string:x-dunst-stack-tag:$msgTag \
-  -h int:value:$volume "Volume: ${volume}% | Mute: $mute | Mic Mute: $muteMic"
+  -h int:value:$volume "Volume: ${volume}% | Mute: $mute | Mic: $muteMic"
