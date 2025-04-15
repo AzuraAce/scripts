@@ -29,7 +29,7 @@ case "$1" in
   ;;
 
 "mic-toggle")
-  amixer -c 1 set Capture toggle
+  amixer set Capture toggle
   eval $refreshDWMBlocks
   ;;
 
