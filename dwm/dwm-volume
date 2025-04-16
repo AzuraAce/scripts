@@ -46,5 +46,5 @@ muteMic=$(amixer get Capture | tail -n 1 | grep -o -P '\[on\]|\[off\]')
 
 msgTag="myvolume"
 # Show the volume notification
-dunstify -a "changeVolume" -u low -i audio-volume-high -h string:x-dunst-stack-tag:$msgTag \
+dunstify -a "changeVolume" -u low -h string:x-dunst-stack-tag:$msgTag \
   -h int:value:$volume "Volume: ${volume}% | Mute: $mute | Mic: $muteMic"

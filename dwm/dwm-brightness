@@ -50,5 +50,5 @@ esac
 
 brightness=$(round $(light) 0)
 
-dunstify -a "changeBrightness" -u low -i brightness -h string:x-dunst-stack-tag:$msgTag \
+dunstify -a "changeBrightness" -u low -h string:x-dunst-stack-tag:$msgTag \
     -h int:value:"$brightness" "Brightness: ${brightness}%"
