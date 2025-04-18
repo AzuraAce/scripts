@@ -23,29 +23,28 @@ cur=$(round $(light) 0)
 refreshDWMBlocks="kill -36 $(pidof dwmblocks) 2>/dev/null"
 
 case "$1" in
-	"up")
-		if [[ $(($cur + $incr)) -ge 100 ]]; then
-			light -S 100
-		else
-      light -S $(($cur + $incr))
-		fi
+  "up")
+    if [[ $(($cur + $incr)) -ge 100 ]]; then
+	    light -S 100
+    else
+	    light -S $(($cur + $incr))
+    fi
     eval "$refreshDWMBlocks"
-	;;
-	"down")
-		if [[ $(($cur - $incr)) -le $incr ]]; then
-			light -S $incr
-		else
-      light -S $(($cur - $incr))
-		fi
+  ;;
+
+  "down")
+    if [[ $(($cur - $incr)) -le $incr ]]; then
+       light -S $incr
+    else
+       light -S $(($cur - $incr))
+    fi
     eval "$refreshDWMBlocks"
-	;;
-	"get")
-    echo "L $cur%"
-    exit 0
-	;;
-	*)
-		echo "Unsupported: \"$1\""
-		exit 1
+  ;;
+
+  "get")
+     echo "L $cur%"
+     exit 0
+  ;;
 esac
 
 brightness=$(round $(light) 0)

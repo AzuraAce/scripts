@@ -13,30 +13,29 @@ muteMic=$(amixer get Capture | tail -n 1 | grep -o -P '\[on\]|\[off\]')
 refreshDWMBlocks="kill -35 $(pidof dwmblocks) 2>/dev/null"
 
 case "$1" in
-"up")
-  amixer --quiet set Master "$(($volume + $incr))%"
-  eval $refreshDWMBlocks
-	;;
-
-"down")
-  amixer --quiet set Master "$(($volume - $incr))%"
-  eval $refreshDWMBlocks
-	;;
-
-"toggle")
-  amixer set Master toggle
-  eval $refreshDWMBlocks
+  "up")
+    amixer --quiet set Master "$(($volume + $incr))%"
+    eval $refreshDWMBlocks
   ;;
 
-"mic-toggle")
-  amixer set Capture toggle
-  eval $refreshDWMBlocks
+  "down")
+    amixer --quiet set Master "$(($volume - $incr))%"
+    eval $refreshDWMBlocks
   ;;
 
-"get")
-  volume = $(eval $volumeCMD)
-  echo "S ${mute} ${volume}%"
-  exit 0
+  "toggle")
+    amixer set Master toggle
+    eval $refreshDWMBlocks
+  ;;
+
+  "mic-toggle")
+    amixer set Capture toggle
+    eval $refreshDWMBlocks
+  ;;
+
+  "get")
+    echo "S ${volume}%"
+    exit 0
   ;;
 esac
 

@@ -5,14 +5,18 @@ toggle_wifi ()
   status="$(nmcli r wifi)"
   if [ "$status" == "enabled" ]; then
     nmcli radio wifi off
+    dunstify -u low "WiFi: [off]"
   else
     nmcli radio wifi on
+    dunstify -u low "WiFi: [on]"
     sleep 5
   fi
 }
 
+# signal number + 34
 case "$BLOCK_BUTTON" in
-    1) toggle_wifi ;;
+    1) "$TERMINAL" -e nmtui; kill -37 $(pidof dwmblocks) ;;
+    3) toggle_wifi ;;
     4) st -e "$EDITOR" "$0" ;;
 esac
 

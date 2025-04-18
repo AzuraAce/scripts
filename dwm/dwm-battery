@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 case "$BLOCK_BUTTON" in
+    1) echo $(acpi -b | awk -F', ' '{print $3}') && exit;;
     4) st -e "$EDITOR" "$0" ;;
 esac
 

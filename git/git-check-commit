@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Usage: ./git-auto-commit.sh /path/to/parent-dir
+
+TARGET_DIR=${1:-$(pwd)}  # default to current dir if no argument passed
+
+if [ ! -d "$TARGET_DIR" ]; then
+  echo "❌ Error: $TARGET_DIR is not a valid directory."
+  exit 1
+fi
+
+echo "🔍 Searching for Git repos under: $TARGET_DIR"
+echo
+
+# Loop through all subdirectories that are Git repos
+find "$TARGET_DIR" -type d -name ".git" | while read gitdir; do
+  clear
+
+  REPO_DIR=$(dirname "$gitdir")
+  echo "📁 Checking repo: $REPO_DIR"
+
+  cd "$REPO_DIR" || continue
+  make clean 2>/dev/null
+
+
+  if [[ -n $(git status --porcelain) ]]; then
+    echo "⚠️  Uncommitted changes detected in $REPO_DIR"
+    echo -e "$(git -c color.status=always status -s)\n"
+
+    echo -n "👉 Add these changes? (y/n): " > /dev/tty
+    read -r ADD_CONFIRM < /dev/tty
+    if [[ "$ADD_CONFIRM" =~ ^[Yy]$ ]]; then
+      git add .
+    fi
+
+    echo -n "📝 Commit the changes? (y/n): " > /dev/tty
+    read -r COMMIT_CONFIRM < /dev/tty
+    if [[ "$COMMIT_CONFIRM" =~ ^[Yy]$ ]]; then
+      echo -n "💬 Enter commit message: " > /dev/tty
+      read -r COMMIT_MSG < /dev/tty
+      git commit -m "$COMMIT_MSG"
+    fi
+
+    echo -n "🚀 Push the changes? (y/n): " > /dev/tty
+    read -r PUSH_CONFIRM < /dev/tty
+    if [[ "$PUSH_CONFIRM" =~ ^[Yy]$ ]]; then
+      git push origin main
+    fi
+
+  else
+    echo "✅ No uncommitted changes in $REPO_DIR"
+  fi
+
+  echo
+done
+
+echo "✅ Done."
+
