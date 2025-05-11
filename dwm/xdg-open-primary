@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+selection=$(xclip -o -selection primary | xargs)
+
+if [[ -z "$selection" ]]; then
+    exit 1
+fi
+
+xdg-open "$selection" >/dev/null 2>&1 &
+

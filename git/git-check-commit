@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Usage: ./git-auto-commit.sh /path/to/parent-dir
+[ -z "$1" ] && echo "Usage: $0 <path-to-root-dir>" && exit
 
 TARGET_DIR=${1:-$(pwd)}  # default to current dir if no argument passed
 

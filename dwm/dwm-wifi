@@ -17,7 +17,7 @@ toggle_wifi ()
 case "$BLOCK_BUTTON" in
     1) "$TERMINAL" -e nmtui; kill -37 $(pidof dwmblocks) ;;
     3) toggle_wifi ;;
-    4) st -e "$EDITOR" "$0" ;;
+    4) "$TERMINAL" -e "$EDITOR" "$0" ;;
 esac
 
 essid=$(nmcli -g active,ssid dev wifi | grep '^yes' | cut -d: -f2)

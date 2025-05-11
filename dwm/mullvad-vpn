@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# signal number + 34 
+case "$BLOCK_BUTTON" in
+    1) gtk-launch mullvad-vpn; kill -38 $(pidof dwmblocks) ;;
+    3) ;;
+    4) "$TERMINAL" -e "$EDITOR" "$0" ;;
+esac
+
+mullvad status | awk '{print $1; exit}'

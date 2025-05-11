@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 case "$BLOCK_BUTTON" in
-    4) st -e "$EDITOR" "$0" ;;
+    4) "$TERMINAL" -e "$EDITOR" "$0" ;;
 esac
 
 incr=10
