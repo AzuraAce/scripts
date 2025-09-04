@@ -1,0 +1,43 @@
+#!/bin/bash
+
+while 
+    PASS=$(echo | dmenu -P -p "Master password:")
+    # Unlock Bitwarden and export session token
+    export BW_SESSION=$(bw unlock $PASS --raw 2> /dev/null)
+    [[ $? -ne 0 ]] || [[ -z "$BW_SESSION" ]]
+do :; done
+
+notify-send "Bitwarden" "Loading vault..."
+
+# Declare associative array
+declare -A ITEM_MAP
+
+# Populate list for dmenu and mapping
+DMENU_LIST=""
+while IFS=$'\n' read -r item; do
+    id=$(echo "$item" | jq -r '.id')
+    name=$(echo "$item" | jq -r '.name')
+    username=$(echo "$item" | jq -r '.login.username // empty')
+    
+    # Fallback to name if username is missing
+    label="${username:+$username@}$name"
+    ITEM_MAP["$label"]="$id"
+    DMENU_LIST+="$label"$'\n'
+done < <(bw list items --session "$BW_SESSION" | jq -c '.[]')
+
+# Let user choose from the list
+SELECTED=$(echo -e "$DMENU_LIST" | dmenu -l 10 -p "Bitwarden")
+
+# If something selected, get password
+if [ -n "$SELECTED" ]; then
+    ID=${ITEM_MAP["$SELECTED"]}
+    SEL=$(echo -e "username\npassword\nuri" | dmenu)
+    if [[ -z "$SEL" ]]; then
+        PASSWORD=$(bw get $SEL "$ID" --session "$BW_SESSION")
+        echo -n "$PASSWORD" | xclip -selection clipboard
+        notify-send "Bitwarden" "Password for '$SELECTED' copied to clipboard"
+    fi
+    
+    # Clear clipboard after 30 seconds
+    (sleep 30 && echo -n "" | xclip -selection clipboard) &
+fi

@@ -1,0 +1,9 @@
+# Example:
+# ./prompt "Do you want to shutdown?" "shutdown -h now"
+
+SELECT=$(echo -e "No\nYes" | dmenu -p "$1")
+
+if [[ $SELECT == "Yes" ]]; then
+   password=$(dmenu -p "password:" -P) 
+   echo "$password" | sudo -S $2
+fi

@@ -1,0 +1,18 @@
+#!/bin/sh
+
+choices="laptop\nlaptopdual\nVGA\nHDMI\nManual selection"
+
+chosen=$(echo -e "$choices" | dmenu)
+
+case "$chosen" in
+    laptopdual) xrandr --output eDP --auto --output HDMI-A-0 --auto --right-of eDP
+    ;;
+    laptop) xrandr --output eDP --auto --output HDMI-A-0 --off
+    ;;
+    VGA) xrandr --output VGA-1 --auto --output eDP --off
+    ;;
+    HDMI) xrandr --output HDMI-A-0 --auto --output eDP --off
+    ;;
+    "Manual selection") arandr
+    ;;
+esac
